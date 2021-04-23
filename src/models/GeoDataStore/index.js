@@ -57,11 +57,10 @@ export default class GeoDataStore {
       return;
     }
 
-    const { latitude: lat, longitude: lon } =
-      navigator.geolocation.getCurrentPosition((position) => position.coords) ||
-      {};
-
-    this.setCoordinates({ lat, lon });
+    navigator.geolocation.getCurrentPosition((position) => {
+      const { latitude: lat, longitude: lon } = position.coords || {};
+      this.setCoordinates({ lat, lon });
+    });
   }
 
   get localization() {
