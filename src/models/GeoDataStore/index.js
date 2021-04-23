@@ -53,14 +53,11 @@ export default class GeoDataStore {
   }
 
   getDeviceCoordinates() {
-    if (!navigator) {
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition((position) => {
-      const { latitude: lat, longitude: lon } = position.coords || {};
-      this.setCoordinates({ lat, lon });
-    });
+    navigator ??
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude: lat, longitude: lon } = position.coords || {};
+        this.setCoordinates({ lat, lon });
+      });
   }
 
   get localization() {
