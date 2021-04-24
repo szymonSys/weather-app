@@ -74,8 +74,10 @@ export default class GeoDataStore {
     if (this.isLoaded) {
       return;
     }
+
     const { locality, country, region } =
       this.geocodeService?.getGeoData({ lat: this.lat, lon: this.lon }) || {};
+
     runInAction(() => {
       locality && this.setLocality(locality);
       country && this.setCountry(country);

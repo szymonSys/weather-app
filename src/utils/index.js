@@ -17,3 +17,9 @@ export function handleError([value, error] = [], onError) {
   }
   return value;
 }
+
+export function searchMapByKey(map, key) {
+  return typeof findValue === "function"
+    ? map.get([...map.keys()].find(key))
+    : map.get(key);
+}

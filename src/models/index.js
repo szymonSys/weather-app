@@ -9,7 +9,11 @@ import geocodeApi from "../../services/GeocodeService/api";
 export const supportedCountriesStore = new SupportedCountriesStore(weatherApi);
 export const geoDataStore = new GeoDataStore(geocodeApi);
 export const countryCitiesStore = new CountryCitiesStore(weatherApi);
-export const cityWeatherStore = new CityWeatherStore(geoDataStore, weatherApi);
+export const cityWeatherStore = new CityWeatherStore({
+  geoData: geoDataStore,
+  cities: countryCitiesStore,
+  api: weatherApi,
+});
 
 class RootStore {
   constructor({

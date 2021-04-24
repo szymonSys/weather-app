@@ -43,7 +43,9 @@ export class WeatherApi {
     );
 
     const { data, status } = response?.data || {};
-    return this.isSuccess(status) ? WeatherApi.mapCities(state)(data) : [];
+    return this.isSuccess(status)
+      ? WeatherApi.mapCities(state, country)(data)
+      : [];
   }
 
   async getCities(country) {
@@ -71,6 +73,20 @@ export class WeatherApi {
     return response?.data;
   }
 
+  async getWeatherForCities(citiesData) {
+    const citiesWeather = await Promise.all(
+      citiesData.map((cityData) => {
+        const { city, state, country } = cityData;
+        return WeatherApi.mapResponse(
+          this.getDataForCity(city, state, country),
+          cityData
+        );
+      })
+    ).catch((error) => console.error(error));
+
+    return citiesWeather;
+  }
+
   async getDataForLocalization({ lat, lon } = {}) {
     const params =
       (lat && lon) !== undefined
@@ -87,12 +103,26 @@ export class WeatherApi {
     return /^success$/.test(status);
   }
 
-  static mapCities(state) {
-    return (cities) => cities.map(({ city }) => ({ state, city }));
+  static mapCities(state, country) {
+    return (cities) =>
+      cities.map(({ city }, id) => ({
+        country,
+        state,
+        city,
+        id,
+        isLoaded: false,
+      }));
   }
 
   static flatCities(cities) {
-    return new Set([...(Array.isArray(cities) ? cities : [cities]).flat()]);
+    return (Array.isArray(cities) ? cities : [cities]).flat();
+    // return new Set([...(Array.isArray(cities) ? cities : [cities]).flat()]);
+  }
+
+  static mapResponse({ data, status }, cityData) {
+    return this.isSuccess(status) && data
+      ? { ...cityData, ...data, isLoaded: true }
+      : { ...cityData };
   }
 }
 
