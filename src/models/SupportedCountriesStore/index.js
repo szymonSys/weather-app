@@ -21,7 +21,7 @@ export default class SupportedCountriesStore {
       filter: observable,
       setFilter: action.bound,
       filtered: computed,
-      featchCountries: action.bound,
+      fetchCountries: action.bound,
     });
     this.api = api;
   }
@@ -44,11 +44,11 @@ export default class SupportedCountriesStore {
     return getFilteredMatches(this.filter, this.countries);
   }
 
-  featchCountries() {
+  async fetchCountries() {
     if (this.isLoaded) {
       return;
     }
-    const { data, status } = this.api?.getSupportedCountries() || {};
+    const { data, status } = (await this.api?.getSupportedCountries()) || {};
     runInAction(() => {
       this.api?.isSuccess(status) && this.setCountries(data);
       this.isLoaded = true;

@@ -1,7 +1,7 @@
 import axios from "axios";
 import {
-  GEOCODE_API_BASE_URL as baseUrl,
-  GEOCODE_API_KEY as key,
+  GEOCODER_API_BASE_URL as baseUrl,
+  GEOCODER_API_KEY as key,
 } from "../../static";
 
 import { handleAsync } from "../../utils";

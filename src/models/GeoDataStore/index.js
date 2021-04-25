@@ -40,20 +40,20 @@ export default class GeoDataStore {
     return (this.isLoaded = isLoaded);
   }
 
-  setLocality({ locality }) {
+  setLocality(locality) {
     return (this.locality = locality);
   }
 
-  setCountry({ country }) {
+  setCountry(country) {
     return (this.country = country);
   }
 
-  setRegion({ region }) {
+  setRegion(region) {
     return (this.region = region);
   }
 
   getDeviceCoordinates() {
-    navigator ??
+    navigator &&
       navigator.geolocation.getCurrentPosition((position) => {
         const { latitude: lat, longitude: lon } = position.coords || {};
         this.setCoordinates({ lat, lon });
@@ -70,13 +70,16 @@ export default class GeoDataStore {
     };
   }
 
-  fetchGeoData() {
+  async fetchGeoData() {
     if (this.isLoaded) {
       return;
     }
 
+    const {
+      coordinates: { lat, lon },
+    } = this;
     const { locality, country, region } =
-      this.geocodeService?.getGeoData({ lat: this.lat, lon: this.lon }) || {};
+      (await this.geocodeService?.getGeoData({ lat, lon })) || {};
 
     runInAction(() => {
       locality && this.setLocality(locality);

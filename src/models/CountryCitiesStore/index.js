@@ -58,7 +58,7 @@ export default class CountryCitiesStore {
     return (this.currentCityId = id);
   }
 
-  loadCitiesWeather() {
+  async loadCitiesWeather() {
     const citiesToFetch = this.cities.slice(
       this.offset,
       this.offset + this.limit
@@ -69,7 +69,7 @@ export default class CountryCitiesStore {
 
     this.isFething = true;
 
-    const citiesWeather = this.api?.getWeatherForCities(citiesToFetch);
+    const citiesWeather = await this.api?.getWeatherForCities(citiesToFetch);
     const cities = [...this.cities];
 
     citiesWeather?.forEach((city) => {
@@ -116,9 +116,9 @@ export default class CountryCitiesStore {
     this.setCities(cities);
   }
 
-  fetchCitiesForCountry(country) {
+  async fetchCitiesForCountry(country) {
     this.isLoaded = false;
-    const cities = this.api?.getCities(country);
+    const cities = await this.api?.getCities(country);
     runInAction(() => {
       this.setCities(cities);
       this.isLoaded = true;

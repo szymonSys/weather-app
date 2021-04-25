@@ -1,25 +1,35 @@
 import axios from "axios";
 import {
   WEATHER_API_BASE_URL as baseUrl,
-  WEATHER_API_KEY as key,
+  WEATHER_API_KEYS as keys,
 } from "../../static";
 import { handleAsync } from "../../utils";
 
+const headers = {
+  // "Access-Control-Allow-Origin": baseUrl,
+  Accept: "*/*",
+  "Content-Type": "application/json",
+};
+
 export class WeatherApi {
   baseUrl = "";
-  key = "";
+  keys = "";
+  requestsQuantity = 0;
   geocodeService;
 
-  constructor({ baseUrl, key } = {}) {
+  constructor({ baseUrl, keys } = {}) {
     this.baseUrl = baseUrl ?? this.baseUrl;
-    this.key = key ?? this.key;
+    this.keys = keys ?? this.keys;
+    this._resetRequestsQuantity();
   }
 
   async getSupportedCountries() {
     const response = await handleAsync(
       axios.get(`${this.baseUrl}/countries`, {
-        params: { key: this.key },
-      })
+        params: { key: this._getKey() },
+        headers,
+      }),
+      this.incrementRequestsQuantity()
     );
 
     return response?.data;
@@ -28,21 +38,30 @@ export class WeatherApi {
   async getSupportedStatesForCountry(country) {
     const response = await handleAsync(
       axios.get(`${this.baseUrl}/states`, {
-        params: { country, key: this.key },
-      })
+        params: { country, key: this._getKey() },
+        headers,
+      }),
+      this.incrementRequestsQuantity()
     );
 
     return response?.data;
   }
 
-  async getCitiesForState(country, state) {
+  async getCitiesForState(country, state, number) {
     const response = await handleAsync(
       axios.get(`${this.baseUrl}/cities`, {
-        params: { country, state, key: this.key },
-      })
+        params: {
+          country,
+          state,
+          key: this._getKey(),
+        },
+        headers,
+      }),
+      this.incrementRequestsQuantity()
     );
 
     const { data, status } = response?.data || {};
+
     return this.isSuccess(status)
       ? WeatherApi.mapCities(state, country)(data)
       : [];
@@ -50,14 +69,19 @@ export class WeatherApi {
 
   async getCities(country) {
     const { status, data: states } =
-      this.getSupportedStatesForCountry(country) || {};
+      (await this.getSupportedStatesForCountry(country)) || {};
 
     if (!this.isSuccess(status)) {
       return await Promise.resolve([]);
     }
 
     const cities = await Promise.all(
-      states.map((state) => this.getCitiesForState(country, state))
+      states.map((state, index) =>
+        WeatherApi.withTimeout(
+          () => this.getCitiesForState(country, state?.state, index),
+          100 * index
+        )
+      )
     ).catch((error) => console.error(error));
 
     return WeatherApi.flatCities(cities);
@@ -66,8 +90,10 @@ export class WeatherApi {
   async getDataForCity(city, state, country) {
     const response = await handleAsync(
       axios.get(`${this.baseUrl}/city`, {
-        params: { city, country, state, key: this.key },
-      })
+        params: { city, country, state, key: this._getKey() },
+        headers,
+      }),
+      this.incrementRequestsQuantity()
     );
 
     return response?.data;
@@ -87,13 +113,26 @@ export class WeatherApi {
     return citiesWeather;
   }
 
+  incrementRequestsQuantity() {
+    this.requestsQuantity++;
+  }
+
+  _resetRequestsQuantity(interval = 60000) {
+    setInterval(() => (this._resetRequestsQuantity = 0), interval);
+  }
+
+  _getKey() {
+    return this.keys[this.requestsQuantity % this.keys.length];
+  }
+
   async getDataForLocalization({ lat, lon } = {}) {
     const params =
       (lat && lon) !== undefined
-        ? { key: this.key, lat, lon }
-        : { key: this.key };
+        ? { key: this._getKey(), lat, lon }
+        : { key: this._getKey() };
     const response = await handleAsync(
-      axios.get(`${this.baseUrl}/nearest_station`, { params })
+      axios.get(`${this.baseUrl}/nearest_station`, { params }),
+      this.incrementRequestsQuantity()
     );
 
     return response?.data;
@@ -114,6 +153,12 @@ export class WeatherApi {
       }));
   }
 
+  static withTimeout(callback, timeout) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(callback()), timeout);
+    });
+  }
+
   static flatCities(cities) {
     return (Array.isArray(cities) ? cities : [cities]).flat();
     // return new Set([...(Array.isArray(cities) ? cities : [cities]).flat()]);
@@ -128,5 +173,5 @@ export class WeatherApi {
 
 export default new WeatherApi({
   baseUrl,
-  key,
+  keys,
 });

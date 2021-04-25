@@ -1,9 +1,11 @@
-export const handleAsync = (promise) =>
-  handleError(
+export const handleAsync = (promise, action) => {
+  action?.();
+  return handleError(
     Promise.resolve(promise)
       .then((data) => [data, undefined])
       .catch((error) => Promise.resolve([undefined, error]))
   );
+};
 
 export function getFilteredMatches(filter, collection) {
   return collection
@@ -11,9 +13,10 @@ export function getFilteredMatches(filter, collection) {
     .sort((a, b) => a.indexOf(filter) - b.indexOf(filter));
 }
 
-export function handleError([value, error] = [], onError) {
+export async function handleError(promise) {
+  const [value, error] = await promise;
   if (error) {
-    typeof onError === "function" ? onError(error) : console.error(error);
+    console.error(error);
   }
   return value;
 }

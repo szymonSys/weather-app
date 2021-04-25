@@ -3,8 +3,8 @@ import CityWeatherStore from "./CityWeatherStore";
 import CountryCitiesStore from "./CountryCitiesStore";
 import SupportedCountriesStore from "./SupportedCountriesStore";
 import GeoDataStore from "./GeoDataStore";
-import weatherApi from "../../services/WeatherService/api";
-import geocodeApi from "../../services/GeocodeService/api";
+import weatherApi from "../services/WeatherService/api";
+import geocodeApi from "../services/GeocodeService/api";
 
 export const supportedCountriesStore = new SupportedCountriesStore(weatherApi);
 export const geoDataStore = new GeoDataStore(geocodeApi);
@@ -22,10 +22,10 @@ class RootStore {
     supportedCountriesStore,
     geoDataStore,
   } = {}) {
-    this.countryCities = countryCitiesStore;
+    this.cities = countryCitiesStore;
     this.cityWeather = cityWeatherStore;
-    this.supportedCountries = supportedCountriesStore;
-    this.geoData = geoDataStore;
+    this.countries = supportedCountriesStore;
+    this.localization = geoDataStore;
   }
 }
 
