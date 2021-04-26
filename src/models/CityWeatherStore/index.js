@@ -16,7 +16,7 @@ export default class CityWeatherStore {
   constructor({ geoData, cities, api }) {
     this.api = api;
     this.geoData = geoData;
-    this.citeis = cities;
+    this.cities = cities;
     makeObservable(this, {
       weatherData: observable,
       isLoaded: observable,
@@ -57,14 +57,14 @@ export default class CityWeatherStore {
     this.fetchWeatherData({ city, state, country, id });
   }
 
-  async fetchLocalWeatherData() {
-    this.geoData.fetchGeoData();
+  async fetchLocalWeatherData(id) {
+    !this.geoData.isLoaded && (await this.geoData.fetchGeoData());
     let { country, state, city } = this.geoData.localization;
     if (!city) {
       const { status, data } =
         (await this.api?.getCitiesForState(country, state)) || {};
-      city = (await this.api?.isSuccess(status)) ? data[0]?.city : city;
+      city = this.api?.isSuccess(status) ? data[0]?.city : city;
     }
-    city && this.fetchWeatherData({ city, country, state });
+    city && this.fetchWeatherData({ city, country, state, id });
   }
 }

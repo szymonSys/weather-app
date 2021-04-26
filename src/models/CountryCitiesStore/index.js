@@ -6,6 +6,8 @@ import {
   runInAction,
 } from "mobx";
 
+import LocalStorage from "../../services/LocalStorage";
+
 export default class CountryCitiesStore {
   country = "";
   cities = [];
@@ -59,17 +61,23 @@ export default class CountryCitiesStore {
   }
 
   async loadCitiesWeather() {
-    const citiesToFetch = this.cities.slice(
-      this.offset,
-      this.offset + this.limit
-    );
-    if (!citiesToFetch.length) {
+    const to = this.offset + this.limit;
+    const citiesToFetch = this.cities.slice(this.offset, to);
+    if (!citiesToFetch?.length) {
       return;
     }
 
     this.isFething = true;
 
-    const citiesWeather = await this.api?.getWeatherForCities(citiesToFetch);
+    const shouldFetch =
+      LocalStorage.getStore("fullyFetchedQuantity") ?? 0 >= to;
+
+    const citiesWeather = shouldFetch
+      ? await this.api?.getWeatherForCities(citiesToFetch)
+      : this.getCitiesFromStorage();
+
+    shouldFetch && LocalStorage.saveStore({ fullyFetchedQuantity: to });
+
     const cities = [...this.cities];
 
     citiesWeather?.forEach((city) => {
@@ -81,7 +89,7 @@ export default class CountryCitiesStore {
     runInAction(() => {
       this.setCities(cities);
       this.isFething = false;
-      this.offset += this.limit;
+      this.offset = to;
     });
   }
 
@@ -109,21 +117,73 @@ export default class CountryCitiesStore {
     if (!city?.id) {
       return;
     }
-    const cities = [this.cities];
+    const cities = [...this.cities];
     if (cities[city.id]) {
       cities[city.id] = city;
     }
+    this.setCitiesWeatherToStorage(cities, true);
     this.setCities(cities);
   }
 
+  saveToStorage(cities) {
+    LocalStorage.saveStore({ cities: cities ?? this.cities });
+    LocalStorage.saveStore({ fullyFetchedQuantity: this.offset });
+  }
+
+  getFromStorage() {
+    return LocalStorage.getStore("cities");
+  }
+
+  setCitiesWeatherToStorage(cities, isAll = false) {
+    if (isAll) {
+      this.saveToStorage(cities);
+    }
+    const citiesFromStorage = this.getFromStorage();
+    const updatedCities = [...citiesFromStorage];
+    cities?.forEach((city) => {
+      let foundIndex;
+      const foundCity = citiesFromStorage?.find(({ id, isLoaded }, index) => {
+        const isFound = !isLoaded && id && id === city?.id;
+        if (isFound) {
+          foundIndex = index;
+        }
+        return isFound;
+      });
+
+      if (foundCity) {
+        updatedCities[foundIndex] = { ...updatedCities[foundIndex], ...city };
+      }
+    });
+
+    this.saveToStorage(updatedCities);
+    return updatedCities;
+  }
+
+  getCitiesFromStorage() {
+    return LocalStorage.getStore("cities")?.slice(
+      this.offset,
+      this.limit + this.offset
+    );
+  }
+
   async fetchCitiesForCountry(country) {
+    if (this.isLoaded) {
+      return;
+    }
     this.isLoaded = false;
-    const cities = await this.api?.getCities(country);
+    const citiesFromStorage = this.getFromStorage();
+    const shouldFetch = !citiesFromStorage?.length;
+    const cities = shouldFetch
+      ? await this.api?.getCities(country)
+      : citiesFromStorage;
+
     runInAction(() => {
       this.setCities(cities);
       this.isLoaded = true;
       this.offset = 0;
       this.limit = 10;
     });
+
+    shouldFetch && this.saveToStorage(cities);
   }
 }

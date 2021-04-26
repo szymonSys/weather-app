@@ -47,7 +47,7 @@ export class WeatherApi {
     return response?.data;
   }
 
-  async getCitiesForState(country, state, number) {
+  async getCitiesForState(country, state) {
     const response = await handleAsync(
       axios.get(`${this.baseUrl}/cities`, {
         params: {
@@ -63,7 +63,7 @@ export class WeatherApi {
     const { data, status } = response?.data || {};
 
     return this.isSuccess(status)
-      ? WeatherApi.mapCities(state, country)(data)
+      ? data?.map(({ city }) => ({ city, country, state }))
       : [];
   }
 
@@ -76,15 +76,10 @@ export class WeatherApi {
     }
 
     const cities = await Promise.all(
-      states.map((state, index) =>
-        WeatherApi.withTimeout(
-          () => this.getCitiesForState(country, state?.state, index),
-          100 * index
-        )
-      )
+      states.map((state) => this.getCitiesForState(country, state?.state))
     ).catch((error) => console.error(error));
 
-    return WeatherApi.flatCities(cities);
+    return WeatherApi.mapCities(WeatherApi.flatCities(cities));
   }
 
   async getDataForCity(city, state, country) {
@@ -142,15 +137,12 @@ export class WeatherApi {
     return /^success$/.test(status);
   }
 
-  static mapCities(state, country) {
-    return (cities) =>
-      cities.map(({ city }, id) => ({
-        country,
-        state,
-        city,
-        id,
-        isLoaded: false,
-      }));
+  static mapCities(cities) {
+    return cities.map((city, id) => ({
+      ...city,
+      id,
+      isLoaded: false,
+    }));
   }
 
   static withTimeout(callback, timeout) {

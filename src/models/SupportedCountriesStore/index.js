@@ -8,6 +8,8 @@ import {
 
 import { getFilteredMatches } from "../../utils";
 
+import LocalStorage from "../../services/LocalStorage";
+
 export default class SupportedCountriesStore {
   isLoaded = false;
   filter = "";
@@ -48,7 +50,13 @@ export default class SupportedCountriesStore {
     if (this.isLoaded) {
       return;
     }
-    const { data, status } = (await this.api?.getSupportedCountries()) || {};
+    const countriesFromStorage = LocalStorage.getStore("countries");
+    const shouldFetch = !countriesFromStorage?.data?.length;
+    const { data, status } =
+      (shouldFetch
+        ? await this.api?.getSupportedCountries()
+        : countriesFromStorage) || {};
+    shouldFetch && LocalStorage.saveStore({ countries: { data, status } });
     runInAction(() => {
       this.api?.isSuccess(status) && this.setCountries(data);
       this.isLoaded = true;
