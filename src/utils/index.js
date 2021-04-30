@@ -8,11 +8,16 @@ export const handleAsync = (promise, defaultValue, action) => {
   );
 };
 
-export function getFilteredMatches(filter, collection) {
+export const getFilteredMatches = (filter, collection) => {
+  const lowerCaseFilter = filter.toLowerCase();
   return collection
-    .filter((item) => item.includes(filter))
-    .sort((a, b) => a.indexOf(filter) - b.indexOf(filter));
-}
+    .filter((item) => item?.toLowerCase()?.includes(lowerCaseFilter))
+    .sort(
+      (a, b) =>
+        a?.toLowerCase()?.indexOf(lowerCaseFilter) -
+        b?.toLowerCase()?.indexOf(lowerCaseFilter)
+    );
+};
 
 export async function handleError(promise, defaultValue) {
   const [value, error] = await promise;
@@ -23,8 +28,7 @@ export async function handleError(promise, defaultValue) {
   return value;
 }
 
-export function searchMapByKey(map, key) {
-  return typeof findValue === "function"
+export const searchMapByKey = (map, key) =>
+  typeof findValue === "function"
     ? map.get([...map.keys()].find(key))
     : map.get(key);
-}

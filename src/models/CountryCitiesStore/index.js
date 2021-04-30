@@ -42,10 +42,13 @@ export default class CountryCitiesStore {
   }
 
   get filtered() {
+    const lowerCaseFilter = this.filter?.toLowerCase();
     return this.cities
-      .filter((item) => item?.city?.includes(this.filter))
+      .filter((item) => item?.city?.toLowerCase()?.includes(lowerCaseFilter))
       .sort(
-        (a, b) => a?.city?.indexOf(this.filter) - b?.city?.indexOf(this.filter)
+        (a, b) =>
+          a?.city?.toLowerCase()?.indexOf(lowerCaseFilter) -
+          b?.city?.toLowerCase()?.indexOf(lowerCaseFilter)
       );
   }
 
