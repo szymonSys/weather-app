@@ -19,7 +19,7 @@ export default function useLoad(storeContext) {
 
   useEffect(() => {
     !isLoaded && loadData({ ...store });
-  }, [isLoaded, store]);
+  }, []);
 
   return isLoaded;
 }

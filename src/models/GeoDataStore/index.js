@@ -78,13 +78,14 @@ export default class GeoDataStore {
     const {
       coordinates: { lat, lon },
     } = this;
-    const { locality, country, region } =
+    const { locality, country, region, coords } =
       (await this.geocodeService?.getGeoData({ lat, lon })) || {};
 
     runInAction(() => {
       locality && this.setLocality(locality);
       country && this.setCountry(country);
       region && this.setRegion(region);
+      coords && this.setCoordinates(coords);
       this.setIsLoaded(true);
     });
   }

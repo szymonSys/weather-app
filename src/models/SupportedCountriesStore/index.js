@@ -23,9 +23,11 @@ export default class SupportedCountriesStore {
       filter: observable,
       setFilter: action.bound,
       filtered: computed,
+      sorted: computed,
       fetchCountries: action.bound,
     });
     this.api = api;
+    this.initStorage();
   }
 
   setCountries(countires) {
@@ -46,6 +48,10 @@ export default class SupportedCountriesStore {
     return getFilteredMatches(this.filter, this.countries);
   }
 
+  get sorted() {
+    return [...this.countries].sort();
+  }
+
   async fetchCountries() {
     if (this.isLoaded) {
       return;
@@ -56,10 +62,16 @@ export default class SupportedCountriesStore {
       (shouldFetch
         ? await this.api?.getSupportedCountries()
         : countriesFromStorage) || {};
+    const countries = data?.map(({ country }) => country);
     shouldFetch && LocalStorage.saveStore({ countries: { data, status } });
     runInAction(() => {
-      this.api?.isSuccess(status) && this.setCountries(data);
+      this.api?.isSuccess(status) && this.setCountries(countries);
       this.isLoaded = true;
     });
+  }
+
+  initStorage() {
+    LocalStorage.getStore("countries") ||
+      LocalStorage.saveStore({ countries: {} });
   }
 }

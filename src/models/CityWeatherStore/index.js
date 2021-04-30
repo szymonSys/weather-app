@@ -37,7 +37,7 @@ export default class CityWeatherStore {
       if (this.api?.isSuccess(status)) {
         const cityWithWeather = { ...data, id, isLoaded: true };
         this.setWeather(cityWithWeather);
-        this.cities?.setLoadedCity(cityWithWeather);
+        this.cities?.setLoadedCity(cityWithWeather, country);
         this.isLoaded = true;
       }
       this.isLoaded = true;
