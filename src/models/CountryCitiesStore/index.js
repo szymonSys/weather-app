@@ -13,7 +13,8 @@ export default class CountryCitiesStore {
   cities = [];
   isLoaded = false;
   isFething = false;
-  currentCityId = null;
+  currentCity = null;
+  currentCountry = null;
   filter = "";
   api;
   offset = 0;
@@ -26,11 +27,12 @@ export default class CountryCitiesStore {
       isFething: observable,
       cities: observable,
       filter: observable,
-      currentCityId: observable,
+      currentCity: observable,
+      currentCountry: observable,
       fetchCitiesForCountry: action.bound,
       setFilter: action.bound,
       setLoadedCity: action.bound,
-      setCurrentCityId: action.bound,
+      setCurrentCity: action.bound,
       filtered: computed,
       sorted: computed,
     });
@@ -60,8 +62,56 @@ export default class CountryCitiesStore {
     return (this.cities = Array.isArray(cities) ? cities : [cities]);
   }
 
-  setCurrentCityId(id) {
-    return (this.currentCityId = id);
+  setCurrentCity(city) {
+    return (this.currentCity = city);
+  }
+
+  setCurrentCountry(country) {
+    return (this.currentCountry = country);
+  }
+
+  async loadCityWeather(cityId) {
+    let loadedCityIndex;
+    const loadedCity =
+      this.cities.find((city, index) => {
+        const isFound = city.id === cityId;
+        if (isFound) {
+          loadedCityIndex = index;
+        }
+        return isFound;
+      }) || {};
+
+    if (loadedCityIndex === undefined) {
+      return;
+    }
+
+    const { isLoaded, city, state, country } = loadedCity;
+
+    if (isLoaded) {
+      runInAction(() => {
+        this.setCurrentCity(loadedCity);
+        this.isLoaded = true;
+      });
+      return;
+    }
+
+    const { status, data } = await this.api?.getDataForCity(
+      city,
+      state,
+      country
+    );
+
+    if (this.api?.isSuccess(status)) {
+      const cities = [...this.cities];
+      cities[loadedCityIndex] = { ...data, id: cityId, isLoaded: true };
+      runInAction(() => {
+        this.setCities(cities);
+        // this.cities[loadedCityIndex] = {...data, id:cityId, isLoaded: true}
+        this.setCurrentCity(this.cities[loadedCityIndex]);
+        this.isLoaded = true;
+      });
+      this.setCitiesWeatherToStorage(this.cities, country, true);
+    }
   }
 
   async loadCitiesWeather(country) {
@@ -147,6 +197,7 @@ export default class CountryCitiesStore {
       this.isLoaded = true;
       this.offset = 0;
       this.limit = 10;
+      this.setCurrentCountry(country);
     });
 
     shouldFetch && this.saveToStorage(cities, country);

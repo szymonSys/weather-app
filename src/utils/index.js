@@ -28,7 +28,14 @@ export async function handleError(promise, defaultValue) {
   return value;
 }
 
-export const searchMapByKey = (map, key) =>
-  typeof findValue === "function"
-    ? map.get([...map.keys()].find(key))
-    : map.get(key);
+export const isFunction = (value) => typeof value === "function";
+
+export const getSearchParams = (searchString) =>
+  searchString
+    ?.replace("?", "")
+    ?.split("&")
+    ?.reduce((searchParamsObject, param) => {
+      const [key, value] = param?.split("=");
+      searchParamsObject[key] = value;
+      return searchParamsObject;
+    }, {}) || {};

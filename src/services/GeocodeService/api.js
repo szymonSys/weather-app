@@ -27,9 +27,9 @@ export class GeocodeApi {
   async getGeoData({ lat, lon }) {
     const params = { access_key: this.key, query: `${lat},${lon}` };
     const response = await handleAsync(
-      axios.get(`${this.baseUrl}/reverse`, { params }),
-      defaultGeodata
+      axios.get(`${this.baseUrl}/reverse`, { params })
     );
+
     const [geodata] = response?.data?.data || [defaultGeodata];
     return geodata;
   }
