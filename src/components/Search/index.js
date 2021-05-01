@@ -3,30 +3,27 @@ import { useHistory } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { storeContext } from "../../models";
 import { isFunction } from "../../utils";
-import TextField from "@material-ui/core/TextField";
-import Autocomplete from "@material-ui/lab/Autocomplete";
 
 const FILTER_TIMEOUT = 1000;
 
 function WithSearch({ renderInput, children }) {
-  const { cities, countries, cityWeather } = useContext(storeContext);
+  const { cities, countries } = useContext(storeContext);
   const history = useHistory();
 
   const [input, setInput] = useState("");
+  const [shouldDisplay, setShouldFilter] = useState(false);
 
   const setCountryFilter = useCallback(
-    _filterBuilder(countries.setFilter, FILTER_TIMEOUT),
+    _filterBuilder(filter(countries.setFilter), FILTER_TIMEOUT),
     []
   );
 
   const setCitiesFilter = useCallback(
-    _filterBuilder(cities.setFilter, FILTER_TIMEOUT),
+    _filterBuilder(filter(cities.setFilter), FILTER_TIMEOUT),
     []
   );
 
   const handleInputChange = (e) => setInput(e.target.value);
-
-  // const setWeather = (cityId) => () => cityWeather.setWeatherData(cityId);
 
   const goToCityView = ({ city, state, country, id }) => () =>
     history.push(`/city/${country}/${state}/${city}?cityId=${id}`);
@@ -34,60 +31,32 @@ function WithSearch({ renderInput, children }) {
   const goToCountryView = (country) => () =>
     history.push(`/country/${country}`);
 
-  // const setCountry = (country) => () =>
-  //   cities.fetchCitiesForCountry(country, true);
-
   useEffect(() => {
     setCountryFilter(input);
     setCitiesFilter(input);
   }, [input]);
 
-  console.log({
-    city: cityWeather.weatherData.city,
-    filteredCountries: countries.filtered,
-    filteredCities: cities.filtered,
-  });
+  function filter(setFilter) {
+    return (input) => {
+      setShouldFilter(!!input?.length);
+      setFilter(input);
+    };
+  }
 
   return (
     <div>
-      {isFunction(renderInput) &&
-        renderInput({ value: input, handleInputChange })}
+      <form noValidate autoComplete="off">
+        {isFunction(renderInput) && renderInput({ input, handleInputChange })}
+      </form>
       {isFunction(children) &&
         children({
           countries: countries.filtered,
           cities: cities.filtered,
           goToCountryView,
           goToCityView,
+          shouldDisplay,
         })}
-      <input
-        value={input}
-        onChange={handleInputChange}
-        type="text"
-        label="search"
-        placeholder="write country or city..."
-      />
-      {countries.sorted.map((country, index) => (
-        <div onClick={goToCountryView(country)} key={index}>
-          {country}
-        </div>
-      ))}
-      {cities.sorted.map(({ city, id, state, isLoaded, country }, index) => (
-        <div onClick={goToCityView({ city, state, country, id })} key={index}>
-          {city} {country}
-        </div>
-      ))}
     </div>
-    // <Autocomplete
-    //   id="autosearch"
-    //   renderInput={(params) => (
-    //     <TextField
-    //       {...params}
-    //       label="Wyszukaj"
-    //       label="Wpisz miasto lub państwo"
-    //       variant="outline"
-    //     />
-    //   )}
-    // />
   );
 }
 

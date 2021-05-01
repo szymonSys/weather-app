@@ -6,13 +6,15 @@ import { getSearchParams } from "../../utils";
 
 function CityView() {
   const [didMount, setDidMount] = useState(false);
+  const { cities } = useContext(storeContext);
 
   const history = useHistory();
   const location = useLocation();
   const params = useParams();
 
-  const { cities } = useContext(storeContext);
-  const { cityId } = getSearchParams(location?.search);
+  const { cityId } = useMemo(() => getSearchParams(location?.search), [
+    location?.search,
+  ]);
 
   const isLoaded = useMemo(() => didMount && cities.isLoaded, [
     didMount,
@@ -48,6 +50,7 @@ function CityView() {
         <div>loading city...</div>
       ) : (
         <div>
+          <button onClick={() => history.goBack()}>back</button>
           {city} {country} {state} {weather?.tp} {pollution?.aqius}
         </div>
       )}

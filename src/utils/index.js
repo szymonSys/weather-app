@@ -9,7 +9,7 @@ export const handleAsync = (promise, defaultValue, action) => {
 };
 
 export const getFilteredMatches = (filter, collection) => {
-  const lowerCaseFilter = filter.toLowerCase();
+  const lowerCaseFilter = filter?.toLowerCase();
   return collection
     .filter((item) => item?.toLowerCase()?.includes(lowerCaseFilter))
     .sort(

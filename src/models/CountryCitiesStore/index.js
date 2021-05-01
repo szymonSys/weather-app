@@ -106,7 +106,6 @@ export default class CountryCitiesStore {
       cities[loadedCityIndex] = { ...data, id: cityId, isLoaded: true };
       runInAction(() => {
         this.setCities(cities);
-        // this.cities[loadedCityIndex] = {...data, id:cityId, isLoaded: true}
         this.setCurrentCity(this.cities[loadedCityIndex]);
         this.isLoaded = true;
       });
@@ -186,12 +185,15 @@ export default class CountryCitiesStore {
     if (this.isLoaded && !reLoad) {
       return;
     }
+
     this.isLoaded = false;
     const citiesFromStorage = this.getFromStorage(country);
     const shouldFetch = !citiesFromStorage?.length;
+
     const cities = shouldFetch
       ? await this.api?.getCities(country)
       : citiesFromStorage;
+
     runInAction(() => {
       this.setCities(cities);
       this.isLoaded = true;
