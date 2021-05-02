@@ -1,7 +1,8 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import TextField from "@material-ui/core/TextField";
 import Search from "../../components/Search";
 import SelectCountry from "../../components/SelectCountry";
+import GoToCurrentCountry from "../../components/GoToCurrentCountry";
 
 export default function MainContainerView({ children }) {
   const renderInput = useCallback(
@@ -72,6 +73,7 @@ export default function MainContainerView({ children }) {
       <h2>Weather search</h2>
       <Search renderInput={renderInput}>{renderContent}</Search>
       <SelectCountry />
+      <GoToCurrentCountry />
       {children}
     </div>
   );

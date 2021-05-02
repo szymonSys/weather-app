@@ -10,13 +10,9 @@ function SelectCountry() {
   );
 
   return (
-    <select onChange={setCountry}>
-      {countries.sorted.map((country, index) => (
-        <option
-          key={index}
-          selected={cities.currentCountry === country}
-          value={country}
-        >
+    <select onChange={setCountry} defaultValue={cities.currentCountry}>
+      {countries.sorted.map((country) => (
+        <option key={country} value={country}>
           {country}
         </option>
       ))}

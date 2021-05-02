@@ -29,8 +29,6 @@ function CityView() {
     setDidMount(true);
   }, []);
 
-  console.log({ currentCountry: cities.currentCountry });
-
   const {
     city,
     country,

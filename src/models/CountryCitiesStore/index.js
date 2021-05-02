@@ -12,7 +12,7 @@ export default class CountryCitiesStore {
   country = "";
   cities = [];
   isLoaded = false;
-  isFething = false;
+  isFetching = false;
   currentCity = null;
   currentCountry = null;
   filter = "";
@@ -24,7 +24,7 @@ export default class CountryCitiesStore {
     makeObservable(this, {
       country: observable,
       isLoaded: observable,
-      isFething: observable,
+      isFetching: observable,
       cities: observable,
       filter: observable,
       currentCity: observable,
@@ -35,6 +35,7 @@ export default class CountryCitiesStore {
       setCurrentCity: action.bound,
       filtered: computed,
       sorted: computed,
+      loaded: computed,
     });
     this.initStorage();
   }
@@ -52,6 +53,17 @@ export default class CountryCitiesStore {
           a?.city?.toLowerCase()?.indexOf(lowerCaseFilter) -
           b?.city?.toLowerCase()?.indexOf(lowerCaseFilter)
       );
+  }
+
+  get loaded() {
+    const loadedCities = [];
+    for (const city of this.cities) {
+      if (!city.isLoaded) {
+        return loadedCities;
+      }
+      loadedCities.push(city);
+    }
+    return loadedCities;
   }
 
   setFilter(filter) {
@@ -113,26 +125,23 @@ export default class CountryCitiesStore {
     }
   }
 
-  async loadCitiesWeather(country) {
+  async loadCitiesWeather(country = this.currentCountry) {
     const to = this.offset + this.limit;
+
     const citiesToFetch = this.cities.slice(this.offset, to);
+
     if (!citiesToFetch?.length) {
       return;
     }
 
-    this.isFething = true;
+    this.isFetching = true;
 
     const fullyFetchedQuantity = LocalStorage.getStore("fullyFetchedQuantity");
-    const shouldFetch = fullyFetchedQuantity[country] ?? 0 >= to;
+    const shouldFetch = (fullyFetchedQuantity[country] ?? 0) < to;
 
     const citiesWeather = shouldFetch
       ? await this.api?.getWeatherForCities(citiesToFetch)
       : this.getCitiesFromStorage(country);
-
-    shouldFetch &&
-      LocalStorage.saveStore({
-        fullyFetchedQuantity: { ...fullyFetchedQuantity, [country]: to },
-      });
 
     const cities = [...this.cities];
 
@@ -142,9 +151,16 @@ export default class CountryCitiesStore {
       }
     });
 
+    if (shouldFetch) {
+      LocalStorage.saveStore({
+        fullyFetchedQuantity: { ...fullyFetchedQuantity, [country]: to },
+      });
+      this.setCitiesWeatherToStorage(cities, country, true);
+    }
+
     runInAction(() => {
       this.setCities(cities);
-      this.isFething = false;
+      this.isFetching = false;
       this.offset = to;
     });
   }
