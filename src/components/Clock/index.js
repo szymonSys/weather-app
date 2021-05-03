@@ -1,12 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { matchPrefix } from "../../utils";
 
 export default function Clock() {
   const [time, setTime] = useState({});
+  const intervalIdRef = useRef();
 
   useEffect(() => {
     handleTick();
-    setInterval(handleTick, 1000);
+    intervalIdRef.current = setInterval(handleTick, 1000);
+    return () => clearInterval(intervalIdRef.current);
   }, []);
 
   const matchZeroPrefix = useCallback(

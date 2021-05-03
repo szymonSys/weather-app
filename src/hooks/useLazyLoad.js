@@ -12,6 +12,7 @@ export default function useLazyLoad(load, deps = []) {
       });
       lastLoadedItemRef.current &&
         intersectionObserverRef.current?.observe?.(lastLoadedItemRef.current);
+      return () => intersectionObserverRef.current?.disconnect?.();
     },
     Array.isArray(deps) ? deps : []
   );

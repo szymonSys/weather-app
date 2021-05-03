@@ -12,7 +12,11 @@ function GoToCurrentCountry() {
   return (
     <>
       {isLoaded ? (
-        <Link to={`country/${country}`}>All cities for {country}</Link>
+        <Link
+          to={{ pathname: `country/${country}`, state: { toTopInMount: true } }}
+        >
+          All cities for {country}
+        </Link>
       ) : (
         <span>loading cities...</span>
       )}

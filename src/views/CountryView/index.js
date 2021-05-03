@@ -1,5 +1,5 @@
 import { useContext, useEffect, useCallback, useState } from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useHistory, useLocation } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { storeContext } from "../../models";
 import useLazyLoad from "../../hooks/useLazyLoad";
@@ -9,6 +9,7 @@ function CountryView() {
   const { cities } = useContext(storeContext);
   const params = useParams();
   const history = useHistory();
+  const location = useLocation();
 
   const checkShouldFetchCities = useCallback(
     () => cities.currentCountry !== params.country,
@@ -38,8 +39,14 @@ function CountryView() {
     }
   }, [shouldLoadCitiesData, cities]);
 
+  useEffect(() => {
+    !!location.state?.toTopInMount && scrollToTop();
+  }, [location.state]);
+
   const goToCityView = ({ country, state, city, id }) => () =>
     history.push(`/city/${country}/${state}/${city}?cityId=${id}`);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
     <div>
@@ -60,6 +67,7 @@ function CountryView() {
           />
         ))}
       </ul>
+      <button onClick={scrollToTop}>To top</button>
       {cities.isFetching && <p>fetching...</p>}
     </div>
   );

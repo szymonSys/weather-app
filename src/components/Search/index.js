@@ -29,7 +29,7 @@ function WithSearch({ renderInput, children }) {
     history.push(`/city/${country}/${state}/${city}?cityId=${id}`);
 
   const goToCountryView = (country) => () =>
-    history.push(`/country/${country}`);
+    history.push(`/country/${country}`, { toTopInMount: true });
 
   useEffect(() => {
     setCountryFilter(input);
