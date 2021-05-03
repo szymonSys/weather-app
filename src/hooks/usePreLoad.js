@@ -1,12 +1,13 @@
 import { useEffect, useContext, useState } from "react";
-import { useLocation } from "react-router-dom";
 
 export default function usePreLoad(storeContext) {
   const store = useContext(storeContext);
-  const location = useLocation();
 
   const [isLoaded, setIsLoaded] = useState(
-    store.localization && store.countries && store.cities && store.cityWeather
+    store.localization.isLoaded &&
+      store.countries.isLoaded &&
+      store.cities.isLoaded &&
+      store.cityWeather.isLoaded
   );
 
   useEffect(() => {

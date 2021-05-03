@@ -30,11 +30,14 @@ export async function handleError(promise, defaultValue) {
 
 export const isFunction = (value) => typeof value === "function";
 
+export const matchPrefix = (prefix) => (matchIf) => (value) =>
+  `${matchIf(value) ? prefix : ""}${value}`;
+
 export const getSearchParams = (searchString) =>
   searchString
     ?.replace("?", "")
-    ?.split("&")
-    ?.reduce((searchParamsObject, param) => {
+    .split("&")
+    .reduce((searchParamsObject, param) => {
       const [key, value] = param?.split("=");
       searchParamsObject[key] = value;
       return searchParamsObject;

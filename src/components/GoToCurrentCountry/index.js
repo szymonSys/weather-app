@@ -5,12 +5,18 @@ import { storeContext } from "../../models";
 
 function GoToCurrentCountry() {
   const {
-    cities: { currentCountry },
+    cities: { currentCountry, isLoaded },
+    localization: { region },
   } = useContext(storeContext) || { cities: {} };
+  const country = currentCountry ?? region;
   return (
-    <Link to={`country/${currentCountry}`}>
-      All cities for {currentCountry}
-    </Link>
+    <>
+      {isLoaded ? (
+        <Link to={`country/${country}`}>All cities for {country}</Link>
+      ) : (
+        <span>loading cities...</span>
+      )}
+    </>
   );
 }
 
