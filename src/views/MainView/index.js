@@ -40,6 +40,7 @@ const useStyles = makeStyles({
     padding: 32,
     zIndex: 2,
   },
+  listItem: { cursor: "pointer" },
 });
 
 export default function MainView() {
@@ -68,6 +69,7 @@ export default function MainView() {
         <List>
           {countries?.map((country) => (
             <ListItem
+              className={classes.listItem}
               key={country}
               selected={currentCountry === country}
               onClick={goToCountryView(country)}
@@ -88,6 +90,7 @@ export default function MainView() {
         <List>
           {cities?.map(({ city, state, country, id }) => (
             <ListItem
+              className={classes.listItem}
               key={id}
               onClick={goToCityView({ city, state, country, id })}
             >

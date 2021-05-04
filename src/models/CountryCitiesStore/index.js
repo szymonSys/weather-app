@@ -6,6 +6,8 @@ import {
   runInAction,
 } from "mobx";
 
+import { HOUR } from "../../static";
+
 import LocalStorage from "../../services/LocalStorage";
 
 export default class CountryCitiesStore {
@@ -136,8 +138,14 @@ export default class CountryCitiesStore {
 
     this.isFetching = true;
 
-    const fullyFetchedQuantity = LocalStorage.getStore("fullyFetchedQuantity");
-    const shouldFetch = (fullyFetchedQuantity[country] ?? 0) < to;
+    const fetched = LocalStorage.getStore("fetched");
+    const { fullyFetchedQuantity, timestamp } = fetched[country] || {};
+
+    const now = Date.now();
+
+    const timeIsUp = now - timestamp > 3 * HOUR;
+
+    const shouldFetch = (fullyFetchedQuantity ?? 0) < to || timeIsUp;
 
     const citiesWeather = shouldFetch
       ? await this.api?.getWeatherForCities(citiesToFetch)
@@ -153,7 +161,13 @@ export default class CountryCitiesStore {
 
     if (shouldFetch) {
       LocalStorage.saveStore({
-        fullyFetchedQuantity: { ...fullyFetchedQuantity, [country]: to },
+        fetched: {
+          ...fetched,
+          [country]: {
+            timestamp: !timestamp || timeIsUp ? now : timestamp,
+            fullyFetchedQuantity: to,
+          },
+        },
       });
       this.setCitiesWeatherToStorage(cities, country, true);
     }
@@ -223,8 +237,7 @@ export default class CountryCitiesStore {
 
   initStorage() {
     LocalStorage.getStore("cities") || LocalStorage.saveStore({ cities: {} });
-    LocalStorage.getStore("fullyFetchedQuantity") ||
-      LocalStorage.saveStore({ fullyFetchedQuantity: {} });
+    LocalStorage.getStore("fetched") || LocalStorage.saveStore({ fetched: {} });
   }
 
   getCitiesFromStorage(country) {

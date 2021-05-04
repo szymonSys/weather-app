@@ -14,3 +14,5 @@ export const WEATHER_API_KEYS = [
 export const GEOCODER_API_BASE_URL = "http://api.positionstack.com/v1";
 
 export const GEOCODER_API_KEY = "e452d31bada2d23e9877efc5aec49a85";
+
+export const HOUR = 60 * 60 * 1000;
