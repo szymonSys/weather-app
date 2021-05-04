@@ -128,6 +128,17 @@ export default class CountryCitiesStore {
   }
 
   async loadCitiesWeather(country = this.currentCountry) {
+    const fetched = LocalStorage.getStore("fetched");
+    const { fullyFetchedQuantity, timestamp } = fetched[country] || {};
+
+    const now = Date.now();
+
+    const timeIsUp = now - timestamp > 3 * HOUR;
+
+    if (timeIsUp) {
+      this.offset = 0;
+    }
+
     const to = this.offset + this.limit;
 
     const citiesToFetch = this.cities.slice(this.offset, to);
@@ -136,14 +147,9 @@ export default class CountryCitiesStore {
       return;
     }
 
-    this.isFetching = true;
-
-    const fetched = LocalStorage.getStore("fetched");
-    const { fullyFetchedQuantity, timestamp } = fetched[country] || {};
-
-    const now = Date.now();
-
-    const timeIsUp = now - timestamp > 3 * HOUR;
+    runInAction(() => {
+      this.isFetching = true;
+    });
 
     const shouldFetch = (fullyFetchedQuantity ?? 0) < to || timeIsUp;
 
@@ -216,9 +222,11 @@ export default class CountryCitiesStore {
       return;
     }
 
+    const timeIsUp = this.handleTimeUp(country);
+
     this.isLoaded = false;
     const citiesFromStorage = this.getFromStorage(country);
-    const shouldFetch = !citiesFromStorage?.length;
+    const shouldFetch = timeIsUp || !citiesFromStorage?.length;
 
     const cities = shouldFetch
       ? await this.api?.getCities(country)
@@ -233,6 +241,15 @@ export default class CountryCitiesStore {
     });
 
     shouldFetch && this.saveToStorage(cities, country);
+  }
+
+  handleTimeUp(country) {
+    const fetched = LocalStorage.getStore("fetched");
+    const { timestamp } = fetched[country] || {};
+
+    const now = Date.now();
+
+    return now - timestamp > 3 * HOUR;
   }
 
   initStorage() {

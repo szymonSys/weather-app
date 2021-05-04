@@ -86,20 +86,30 @@ function CountryView() {
           <CircularProgress />
         ) : (
           <Box>
-            {cities.loaded.map((data, index, array) => (
-              <City
-                key={data?.id}
-                setRef={setRef}
-                isLast={index === array.length - 1}
-                onClick={goToCityView({
-                  city: data?.city,
-                  state: data?.state,
-                  country: data?.country,
-                  id: data?.id,
-                })}
-                data={data}
-              />
-            ))}
+            {!!cities.cities.length ? (
+              cities.loaded.map((data, index, array) => (
+                <City
+                  key={data?.id}
+                  setRef={setRef}
+                  isLast={index === array.length - 1}
+                  onClick={goToCityView({
+                    city: data?.city,
+                    state: data?.state,
+                    country: data?.country,
+                    id: data?.id,
+                  })}
+                  data={data}
+                />
+              ))
+            ) : (
+              <>
+                {!cities.isFetching && (
+                  <Typography variant="h5" align="center" color="textSecondary">
+                    There are no supported cities for {params.country}
+                  </Typography>
+                )}
+              </>
+            )}
           </Box>
         )}
       </Box>
