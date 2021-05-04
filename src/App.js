@@ -1,12 +1,13 @@
 import MainRouter from "./routers/MainRouter";
 import { StoreProvider } from "./models";
+import { Container } from "@material-ui/core";
 
 function App() {
   return (
     <StoreProvider>
-      <div className="App">
+      <Container className="App">
         <MainRouter />
-      </div>
+      </Container>
     </StoreProvider>
   );
 }

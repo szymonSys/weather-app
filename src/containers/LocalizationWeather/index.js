@@ -3,9 +3,24 @@ import { observer } from "mobx-react-lite";
 import { storeContext } from "../../models";
 import { isFunction } from "../../utils";
 import useIcons from "../../hooks/useIcons";
+import { CircularProgress, makeStyles, Paper } from "@material-ui/core";
+
+const useStyles = makeStyles({
+  wrapper: {
+    position: "relative",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: 160,
+    padding: "16px 42px 52px",
+    margin: "60px 0",
+  },
+});
 
 function LocalizationWeather({ children }) {
   const { cityWeather } = useContext(storeContext);
+
+  const classes = useStyles();
 
   const {
     weather: { ic: iconCode, tp: temperature },
@@ -14,17 +29,17 @@ function LocalizationWeather({ children }) {
   const icons = useIcons(iconCode, temperature);
 
   return (
-    <div>
+    <>
       {isFunction(children) && (
-        <>
+        <Paper className={classes.wrapper}>
           {cityWeather.isLoaded ? (
             children({ ...cityWeather, icons })
           ) : (
-            <p>loading local weather...</p>
+            <CircularProgress />
           )}
-        </>
+        </Paper>
       )}
-    </div>
+    </>
   );
 }
 

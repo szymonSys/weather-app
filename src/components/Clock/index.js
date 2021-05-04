@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { Typography } from "@material-ui/core";
 import { matchPrefix } from "../../utils";
 
 export default function Clock() {
@@ -29,8 +30,8 @@ export default function Clock() {
   const { hours, minutes, seconds } = time;
 
   return (
-    <div>
+    <Typography variant="h5">
       <span>{hours}</span>:<span>{minutes}</span>:<span>{seconds}</span>
-    </div>
+    </Typography>
   );
 }

@@ -3,6 +3,7 @@ import humidity from "../static/icons/humidity.svg";
 import wind from "../static/icons/windy.svg";
 import pollution from "../static/icons/pollution.svg";
 import pin from "../static/icons/pin.svg";
+import pressure from "../static/icons/pressure.svg";
 
 export default function useIcons(weatherIconCode, temperature) {
   const icons = useMemo(
@@ -14,6 +15,7 @@ export default function useIcons(weatherIconCode, temperature) {
         wind,
         pollution,
         pin,
+        pressure,
       }),
     [weatherIconCode, temperature]
   );

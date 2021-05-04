@@ -18,7 +18,7 @@ export default class CountryCitiesStore {
   filter = "";
   api;
   offset = 0;
-  limit = 10;
+  limit = 5;
   constructor(api) {
     this.api = api;
     makeObservable(this, {
@@ -214,7 +214,7 @@ export default class CountryCitiesStore {
       this.setCities(cities);
       this.isLoaded = true;
       this.offset = 0;
-      this.limit = 10;
+      this.limit = 5;
       this.setCurrentCountry(country);
     });
 

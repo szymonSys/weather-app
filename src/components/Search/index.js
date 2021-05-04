@@ -3,8 +3,9 @@ import { useHistory } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { storeContext } from "../../models";
 import { isFunction } from "../../utils";
+import { Box } from "@material-ui/core";
 
-const FILTER_TIMEOUT = 1000;
+const FILTER_TIMEOUT = 300;
 
 function WithSearch({ renderInput, children }) {
   const { cities, countries } = useContext(storeContext);
@@ -44,7 +45,7 @@ function WithSearch({ renderInput, children }) {
   }
 
   return (
-    <div>
+    <Box>
       <form noValidate autoComplete="off">
         {isFunction(renderInput) && renderInput({ input, handleInputChange })}
       </form>
@@ -52,11 +53,12 @@ function WithSearch({ renderInput, children }) {
         children({
           countries: countries.filtered,
           cities: cities.filtered,
+          currentCountry: cities.currentCountry,
           goToCountryView,
           goToCityView,
           shouldDisplay,
         })}
-    </div>
+    </Box>
   );
 }
 
