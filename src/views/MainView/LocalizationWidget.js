@@ -63,7 +63,7 @@ export default function LocalizationWidget({ weatherData, geoData, icons }) {
           />
         </Grid>
         <Grid item>
-          <Typography variant="h1">
+          <Typography color="primary" variant="h1">
             {weatherData?.current?.weather?.tp} &deg;C
           </Typography>
         </Grid>
@@ -130,8 +130,10 @@ export default function LocalizationWidget({ weatherData, geoData, icons }) {
         </Grid>
         <Grid item className={classess.weatherIconWrapper}>
           <Typography variant="overline">{weatherData.country}</Typography>
-          <Typography variant="subtitle2">{weatherData.state}</Typography>
-          <Typography paragraph variant="h3">
+          <Typography color="textSecondary" variant="subtitle2">
+            {weatherData.state}
+          </Typography>
+          <Typography color="secondary" paragraph variant="h3">
             {weatherData.city}
           </Typography>
           <Clock />
