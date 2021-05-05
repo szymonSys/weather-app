@@ -70,8 +70,8 @@ export default class GeoDataStore {
     };
   }
 
-  async fetchGeoData() {
-    if (this.isLoaded) {
+  async fetchGeoData(reload = false) {
+    if (this.isLoaded && !reload) {
       return;
     }
 

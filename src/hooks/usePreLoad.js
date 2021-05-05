@@ -1,4 +1,5 @@
 import { useEffect, useContext, useState } from "react";
+import usePrevious from "../hooks/usePrevious";
 
 export default function usePreLoad(storeContext) {
   const store = useContext(storeContext);
@@ -10,18 +11,19 @@ export default function usePreLoad(storeContext) {
       store.cityWeather.isLoaded
   );
 
+  const prevCoordinates = usePrevious(store.localization.coordinates);
+
   useEffect(() => {
-    if (!isLoaded) {
+    if (!isLoaded || prevCoordinates !== store.localization.coordinates) {
       loadData({ ...store });
       setIsLoaded(true);
     }
-  }, [isLoaded]);
+  }, [isLoaded, store.localization.coordinates]);
 
   return isLoaded;
 }
-
 async function loadData({ localization, countries, cityWeather, cities }) {
-  await Promise.resolve(localization?.fetchGeoData());
+  await Promise.resolve(localization?.fetchGeoData(true));
   await Promise.resolve(countries?.fetchCountries());
   await Promise.resolve(cities?.fetchCitiesForCountry(localization?.country));
 
