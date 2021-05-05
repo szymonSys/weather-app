@@ -49,6 +49,7 @@ const useStyles = makeStyles({
 
 export default function LocalizationWidget({ weatherData, geoData, icons }) {
   const classess = useStyles();
+
   return (
     <Box>
       <Typography align="center" variant="h5" paragraph>

@@ -18,12 +18,12 @@ export default function usePreLoad(storeContext) {
       loadData({ ...store });
       setIsLoaded(true);
     }
-  }, [isLoaded, store.localization.coordinates]);
+  }, [isLoaded, store.localization.fromDevice]);
 
   return isLoaded;
 }
 async function loadData({ localization, countries, cityWeather, cities }) {
-  await Promise.resolve(localization?.fetchGeoData(true));
+  await Promise.resolve(localization?.fetchGeoData());
   await Promise.resolve(countries?.fetchCountries());
   await Promise.resolve(cities?.fetchCitiesForCountry(localization?.country));
 

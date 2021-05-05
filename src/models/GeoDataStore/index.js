@@ -12,6 +12,7 @@ export default class GeoDataStore {
   country = "";
   region = "";
   isLoaded = false;
+  fromDevice = false;
   geocodeService;
 
   constructor(geocodeService, { lat, lon } = {}) {
@@ -32,7 +33,8 @@ export default class GeoDataStore {
       : this.getDeviceCoordinates();
   }
 
-  setCoordinates({ lat, lon } = {}) {
+  setCoordinates({ lat, lon } = {}, fromDevice) {
+    if (fromDevice) this.fromDevice = true;
     return (this.coordinates = { lat, lon });
   }
 
@@ -56,7 +58,7 @@ export default class GeoDataStore {
     navigator &&
       navigator.geolocation.getCurrentPosition((position) => {
         const { latitude: lat, longitude: lon } = position.coords || {};
-        this.setCoordinates({ lat, lon });
+        this.setCoordinates({ lat, lon }, true);
       });
   }
 
@@ -70,8 +72,8 @@ export default class GeoDataStore {
     };
   }
 
-  async fetchGeoData(reload = false) {
-    if (this.isLoaded && !reload) {
+  async fetchGeoData() {
+    if (this.isLoaded && !this.fromDevice) {
       return;
     }
 
