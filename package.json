@@ -1,6 +1,6 @@
 {
   "name": "weather",
-  "homepage": "https://szymonSys.github.io/weather-app",
+  "homepage": "https://szymonsys.github.io/weather-app/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
